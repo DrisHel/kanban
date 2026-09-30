@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { NotImplementedError } from './errors.js';
-import { InvalidCardColumnError, InvalidCardTitleError, InvalidPriorityError } from '../cards/errors.js';
-import { ColumnNotFoundError, InvalidColumnNameError } from '../boards/errors.js';
+import { CardNotFoundError, DuplicateCardTitleError, InvalidCardColumnError, InvalidCardTitleError, InvalidPriorityError, WipLimitExceededError } from '../cards/errors.js';
+import { ColumnNotFoundError, InvalidColumnNameError, InvalidWipLimitError } from '../boards/errors.js';
 
 /**
  * Ponto único de tradução "erro de domínio -> status HTTP". Ao criar um
@@ -14,7 +14,11 @@ const STATUS_BY_ERROR = new Map<Function, number>([
   [InvalidCardTitleError, 400],
   [InvalidCardColumnError, 400],
   [InvalidPriorityError, 400],
+  [CardNotFoundError, 404],
+  [DuplicateCardTitleError, 409],
+  [WipLimitExceededError, 409],
   [InvalidColumnNameError, 400],
+  [InvalidWipLimitError, 400],
   [ColumnNotFoundError, 404],
 ]);
 

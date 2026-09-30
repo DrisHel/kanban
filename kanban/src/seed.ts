@@ -21,9 +21,8 @@ const COLUMN_DOING = 'col-doing';
 const COLUMN_DONE = 'col-done';
 
 /**
- * Dados iniciais hard-coded (é literalmente o único caso de uso que
- * funciona no estado inicial do template: ver essa lista renderizada em
- * `GET /`). Os cartões nas colunas "A Fazer"/"Em Andamento" não são só
+ * Dados iniciais hard-coded exibidos em `GET /`. Os cartões nas colunas
+ * "A Fazer"/"Em Andamento" não são só
  * dados de exemplo — são o próprio backlog de atividades da Aula 03
  * (comparem os títulos com aula03.md).
  */

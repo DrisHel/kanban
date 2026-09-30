@@ -14,7 +14,7 @@ import type { SeededRepositories } from '../../src/seed.js';
 export function buildTestRepositories(): SeededRepositories {
   const board = Board.create('board-1', 'Quadro de Teste', [
     Column.create('col-1', 'Coluna 1', 1),
-    Column.create('col-2', 'Coluna 2', 2),
+    Column.create('col-2', 'Coluna 2', 2, 1),
   ]);
   return {
     boardRepository: new InMemoryBoardRepository(board),

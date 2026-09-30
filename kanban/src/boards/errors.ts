@@ -15,6 +15,13 @@ export class InvalidColumnNameError extends Error {
   }
 }
 
+export class InvalidWipLimitError extends Error {
+  constructor() {
+    super('Limite de WIP inválido: informe um inteiro maior ou igual a zero.');
+    this.name = 'InvalidWipLimitError';
+  }
+}
+
 export class ColumnNotFoundError extends Error {
   constructor(columnId: string) {
     super(`Coluna ${columnId} não encontrada`);

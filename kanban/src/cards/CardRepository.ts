@@ -1,11 +1,8 @@
 import type { Card } from './Card.js';
 
 /**
- * MODEL (persistência) — "banco em memória" dos cartões. Diferente do
- * Controller (que ainda não faz nada além de lançar `NotImplementedError`),
- * este repositório já está pronto e testado: criar, mover, editar e
- * excluir cartões são regras de ORQUESTRAÇÃO/USO que vocês vão implementar
- * no `CardController`, chamando os métodos que já existem aqui.
+ * MODEL (persistência) — "banco em memória" dos cartões. O Controller usa
+ * este contrato para criar, consultar, mover, editar e excluir cartões.
  */
 export interface CardRepository {
   save(card: Card): void;
