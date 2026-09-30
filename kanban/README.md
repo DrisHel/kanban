@@ -2,7 +2,7 @@
 
 Template de partida para a atividade prática da Aula 03. Uma aplicação de gestão de tarefas estilo Trello/Jira (quadro → colunas → cartões), em MVC, com "banco de dados" em memória e UI em Tailwind (via CDN).
 
-**Estado inicial:** só existe UM caso de uso funcionando — `GET /` mostra o quadro hard-coded definido em `src/seed.ts`. Todo o resto (criar/mover/editar/excluir cartão, criar coluna, buscar, etc.) está com a assinatura pronta e a implementação pendente. Essa é a atividade da aula — ver a lista completa em [`../aula03.md`](../aula03.md).
+**Estado atual:** as atividades obrigatórias 1–7 estão implementadas: cartões podem ser criados, movidos, editados e excluídos; limites de WIP e títulos duplicados são validados; novas colunas podem ser adicionadas. As atividades extras 8–11 continuam fora do escopo desta entrega.
 
 ## Rodando
 
@@ -13,23 +13,23 @@ npm run test:coverage  # com relatório de cobertura — a meta é 100%
 npm run dev             # sobe o servidor em http://localhost:3002
 ```
 
-Abra `http://localhost:3002` para ver o quadro. Os formulários de criar cartão já apontam para `POST /cards`, que hoje responde `501 Not Implemented` — é esperado.
+Abra `http://localhost:3002` para usar o quadro. A aplicação mantém os dados em memória; reiniciar o servidor restaura o seed.
 
 ## Estrutura (package by feature)
 
 ```
 src/
 ├── boards/                  → tudo relacionado a Quadro e Coluna
-│   ├── Board.ts               MODEL: aggregate root (colunas)
+│   ├── Board.ts               MODEL: aggregate root (colunas, criação de coluna)
 │   ├── Column.ts               MODEL: uma coluna (nome, ordem, limite de WIP)
 │   ├── BoardRepository.ts      MODEL (persistência): banco em memória do quadro
-│   ├── BoardController.ts      CONTROLLER: showBoard() pronto; createColumn() pendente
+│   ├── BoardController.ts      CONTROLLER: exibição e criação de coluna
 │   ├── boardView.ts             VIEW: monta o "view model" (inclui os cartões)
 │   └── errors.ts                 erros de domínio deste módulo
 ├── cards/                   → tudo relacionado a Cartão
-│   ├── Card.ts                 MODEL: título/prioridade/descrição validados; mover/renomear pendentes
+│   ├── Card.ts                 MODEL: validação e operações de mover/renomear/priorizar
 │   ├── CardRepository.ts        MODEL (persistência): banco em memória dos cartões — PRONTO
-│   ├── CardController.ts        CONTROLLER: todos os métodos pendentes
+│   ├── CardController.ts        CONTROLLER: criar/mover/editar/excluir; detalhe e busca extras pendentes
 │   └── errors.ts                 erros de domínio deste módulo
 ├── shared/
 │   ├── errors.ts                NotImplementedError
@@ -50,13 +50,13 @@ Por que `boards/` e `cards/` como módulos separados (em vez de `domain/`, `cont
 
 | Camada | Pronto | Pendente (atividade da turma) |
 | --- | --- | --- |
-| Model (`Board`, `Column`) | Validação de nome de coluna, `findColumn`, `hasColumn`, `toSnapshot` | `addColumn` (Atividade 7) |
-| Model (`Card`) | Validação de título/prioridade/coluna, `restore`, `toSnapshot` | `changeColumn`, `rename`, `changePriority` (Atividades 2 e 3) |
+| Model (`Board`, `Column`) | Validação de nome/WIP, consulta de colunas, snapshot | — |
+| Model (`Card`) | Validação de título/prioridade/coluna, `restore`, mover, renomear, priorizar, snapshot | — |
 | Persistência (`*Repository`) | CRUD completo, em memória, testado | — (já está pronto; usem os métodos existentes) |
-| Controller (`BoardController`) | `showBoard()` | `createColumn()` (Atividade 7) |
-| Controller (`CardController`) | — | `create`, `move`, `update`, `remove`, `showDetail`, `search` (Atividades 1, 2, 3, 4, 8, 9) |
+| Controller (`BoardController`) | Exibição e criação de colunas | — |
+| Controller (`CardController`) | Criar, mover, editar e excluir cartões; WIP e duplicidade | Detalhe e busca (atividades extras 8 e 9) |
 | View / rotas | Renderização do quadro, todas as rotas registradas, tratamento de erro central | — |
-| Testes | 100% de cobertura do que existe hoje | Cobrir cada atividade nova (ver `test.todo` como checklist) |
+| Testes | 100% de cobertura em todas as métricas | — |
 
 ## Testes: onde estão e o que fazer com eles
 
@@ -68,19 +68,26 @@ test/
 │   ├── shared/             → errorHandler isolado
 │   └── routes/             → Express + Controller + Repository reais, via Supertest
 │       ├── board.routes.test.ts
-│       └── cards.routes.test.ts   ← tem os `test.todo(...)` do backlog
+│       └── cards.routes.test.ts   ← criação, movimentação, edição e exclusão
 └── e2e/
-    └── board.e2e.test.ts    → GET / com o quadro REAL (src/seed.ts), sem repositórios injetados
+    └── board.e2e.test.ts    → quadro semeado e jornada de cartões via HTTP
 ```
 
-Dois detalhes importantes:
+Detalhes dos testes:
 
-1. **`test.todo(...)`** — em `test/integration/routes/cards.routes.test.ts` e `test/e2e/board.e2e.test.ts` há uma lista de testes com `test.todo(...)` em vez de `it(...)`. São specs do comportamento esperado de cada atividade, ainda não implementadas — o Vitest lista como "todo" e não falha a suíte. Ao implementar uma atividade, transformem o `test.todo` correspondente em um `it(...)` de verdade.
-2. **Os testes "responde 501"** em `cards.routes.test.ts` e `board.routes.test.ts` (`POST /columns`) documentam o comportamento ATUAL. Quando vocês implementarem a atividade correspondente, esses testes vão passar a falhar (a rota não vai mais responder 501) — **isso é o esperado**: apaguem/substituam o teste de 501 pelo `test.todo` transformado em teste real.
+1. As atividades obrigatórias não têm mais `test.todo`: os testes de integração exercitam sucesso, validação e conflitos via HTTP; o fluxo completo também é exercitado em `test/e2e/board.e2e.test.ts`.
+2. As atividades extras 8 e 9 ainda respondem 501; as extras 10 e 11 exigem mudanças arquiteturais maiores e não foram iniciadas.
+
+## Decisões registradas
+
+- O acoplamento entre `boards/` e `cards/` é aceitável para o tamanho atual e para um único processo, mas os Controllers conhecem os repositórios concretos do outro módulo. Se `cards` virar serviço separado, a dependência de `CardController` em `BoardRepository` será um dos primeiros pontos a quebrar; a validação de coluna precisará virar um contrato remoto/port.
+- Fazer `Board` possuir IDs de cartões reduziria a consulta de coluna feita por `CardController`, mas levaria o módulo `boards` a conhecer a identidade e o ciclo de vida de cartões, ampliando a dependência de negócio na direção oposta. Não foi adotado nesta entrega.
+- O limite WIP é verificado ao criar e mover cartões para uma coluna limitada. Títulos são comparados sem diferenciar maiúsculas/minúsculas e só precisam ser únicos dentro da mesma coluna.
+- Nomes de coluna duplicados são permitidos. Cartões em “Concluído” também podem ser excluídos; não há regra de retenção no enunciado implementado.
 
 ## Cobertura: por que 100% e como manter
 
-`vitest.config.ts` define `thresholds: { lines: 100, functions: 100, branches: 100, statements: 100 }`. O estado inicial deste template já bate 100% — rodem `npm run test:coverage` agora, antes de mexer em qualquer coisa, para ver.
+`vitest.config.ts` define `thresholds: { lines: 100, functions: 100, branches: 100, statements: 100 }`; `npm run test:coverage` verifica essa meta.
 
 Na prática isso significa: **toda linha de código novo que vocês escreverem precisa de pelo menos um teste que passe por ela.** Não é burocracia — é o motivo de existir tanto dublê pronto (repositórios reais, fixtures em `test/helpers/fixtures.ts`) para vocês não perderem tempo montando infraestrutura de teste, só escrevendo o teste da regra que importa.
 

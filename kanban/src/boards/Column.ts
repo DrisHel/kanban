@@ -1,4 +1,4 @@
-import { InvalidColumnNameError } from './errors.js';
+import { InvalidColumnNameError, InvalidWipLimitError } from './errors.js';
 
 export interface ColumnSnapshot {
   id: string;
@@ -26,6 +26,9 @@ export class Column {
 
   static create(id: string, name: string, order: number, wipLimit: number | null = null): Column {
     const normalized = Column.validateName(name);
+    if (wipLimit !== null && (!Number.isInteger(wipLimit) || wipLimit < 0)) {
+      throw new InvalidWipLimitError();
+    }
     return new Column(id, normalized, order, wipLimit);
   }
 

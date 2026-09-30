@@ -1,11 +1,8 @@
 import { defineConfig } from 'vitest/config';
 
 /**
- * Meta da Aula 03: a turma deve manter 100% de cobertura (linhas, funções,
- * branches e statements) em TODO código novo que escrever. O estado inicial
- * do template já bate 100% — se `npm run test:coverage` falhar depois de
- * vocês implementarem uma atividade, é sinal de que falta teste (não de que
- * a meta está errada).
+ * Meta do projeto: manter 100% de cobertura (linhas, funções, branches e
+ * statements) para todo o código incluído.
  *
  * `src/index.ts` fica de fora: é só o bootstrap que sobe o servidor
  * (`app.listen`), sem lógica própria — testar isso exigiria abrir uma porta

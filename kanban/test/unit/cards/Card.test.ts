@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Card } from '../../../src/cards/Card.js';
 import { InvalidCardColumnError, InvalidCardTitleError, InvalidPriorityError } from '../../../src/cards/errors.js';
-import { NotImplementedError } from '../../../src/shared/errors.js';
 
 describe('Card.create', () => {
   it('cria um cartão com prioridade baixa e descrição vazia por padrão', () => {
@@ -59,22 +58,41 @@ describe('Card.restore', () => {
   });
 });
 
-describe('métodos ainda não implementados (atividades 2 e 3)', () => {
-  it('Card#changeColumn lança NotImplementedError', () => {
+describe('Card — operações de domínio', () => {
+  it('changeColumn troca a coluna do cartão', () => {
     const card = Card.create('Cartão', 'col-todo');
 
-    expect(() => card.changeColumn('col-doing')).toThrow(NotImplementedError);
+    card.changeColumn('col-doing');
+
+    expect(card.columnId).toBe('col-doing');
   });
 
-  it('Card#rename lança NotImplementedError', () => {
+  it('rename atualiza título e descrição quando informada', () => {
     const card = Card.create('Cartão', 'col-todo');
 
-    expect(() => card.rename('Novo título')).toThrow(NotImplementedError);
+    card.rename('  Novo título  ', '  Nova descrição  ');
+
+    expect(card.title).toBe('Novo título');
+    expect(card.description).toBe('Nova descrição');
   });
 
-  it('Card#changePriority lança NotImplementedError', () => {
+  it('rename preserva descrição quando omitida e valida o novo título', () => {
+    const card = Card.create('Cartão', 'col-todo', 'baixa', 'Descrição original');
+
+    card.rename('Título alterado');
+
+    expect(card.title).toBe('Título alterado');
+    expect(card.description).toBe('Descrição original');
+    expect(() => card.rename('x')).toThrow(InvalidCardTitleError);
+  });
+
+  it('changePriority atualiza a prioridade e rejeita valores inválidos', () => {
     const card = Card.create('Cartão', 'col-todo');
 
-    expect(() => card.changePriority('alta')).toThrow(NotImplementedError);
+    card.changePriority('alta');
+
+    expect(card.priority).toBe('alta');
+    // @ts-expect-error propositalmente passando um valor fora do union
+    expect(() => card.changePriority('urgente')).toThrow(InvalidPriorityError);
   });
 });

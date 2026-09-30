@@ -3,12 +3,7 @@ import type { BoardController } from './boards/BoardController.js';
 import type { CardController } from './cards/CardController.js';
 import { respond } from './shared/http.js';
 
-/**
- * Todas as rotas já estão registradas — inclusive as que ainda não fazem
- * nada além de lançar `NotImplementedError` (que vira HTTP 501, ver
- * `shared/errorHandler.ts`). A tarefa da turma é implementar o
- * COMPORTAMENTO dentro dos Controllers, não desenhar rotas novas.
- */
+/** Rotas HTTP delegam os casos de uso aos Controllers dos módulos. */
 export function createRoutes(boardController: BoardController, cardController: CardController): Router {
   const router = Router();
 
